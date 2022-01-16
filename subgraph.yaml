@@ -1,0 +1,38 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ListingManager
+    network: mumbai
+    source:
+      address: "0xCbA7601994bfe5c06e7164c083e7f72e19cF870C"
+      abi: ListingManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ListingCancelled
+        - ListingCreated
+        - ListingReportResult
+        - ListingReported
+        - ListingUpdated
+        - OwnershipTransferred
+      abis:
+        - name: ListingManager
+          file: ./abis/ListingManager.json
+      eventHandlers:
+        - event: ListingCancelled(indexed bytes32)
+          handler: handleListingCancelled
+        - event: ListingCreated(indexed bytes32,indexed address,string,uint256,uint256)
+          handler: handleListingCreated
+        - event: ListingReportResult(indexed bytes32,uint256)
+          handler: handleListingReportResult
+        - event: ListingReported(indexed bytes32)
+          handler: handleListingReported
+        - event: ListingUpdated(indexed bytes32,uint256)
+          handler: handleListingUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/mapping.ts
