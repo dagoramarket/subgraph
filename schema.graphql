@@ -1,5 +1,59 @@
-type ExampleEntity @entity {
+type _Schema_
+  @fulltext(
+    name: "listingSearch"
+    language: en
+    algorithm: proximityRank
+    include: [
+      {
+        entity: "Listing"
+        fields: [
+          { name: "title" }
+          { name: "description" }
+          { name: "tagSearch" }
+        ]
+      }
+    ]
+  )
+
+type Listing @entity {
   id: ID!
-  count: BigInt!
-  hash: Bytes! # bytes32
+  seller: Seller!
+
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expiration: BigInt!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  title: String
+  description: String
+
+  categories: [String!]!
+  tags: [String!]!
+  images: [String!]!
+
+
+  tagSearch: String
+  sellerStake: BigInt!
+
+  allowed_tokens: [Bytes!]!
+
+  # location: Location
 }
+
+type Seller @entity {
+  id: ID!
+  balance: BigInt!
+  lockedTokens: BigInt!
+  listings: [Listing!]! # @derivedFrom(field: "seller")
+}
+
+# type Location @entity {
+#   id: ID!
+#   latitude: BigDecimal!
+#   longitude: BigDecimal!
+# }

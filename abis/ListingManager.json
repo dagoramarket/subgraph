@@ -68,6 +68,24 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "commissionPercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "cashbackPercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "warranty",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "quantity",
         "type": "uint256"
       }
@@ -148,14 +166,26 @@
   {
     "inputs": [],
     "name": "MINIMUM_STAKED_TOKEN",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "PERCENTAGE_BURN",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -163,7 +193,11 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
           {
             "internalType": "address payable",
             "name": "seller",
@@ -179,7 +213,11 @@
             "name": "commissionPercentage",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "warranty", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "warranty",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "cashbackPercentage",
@@ -197,9 +235,21 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "name": "cancelledListings",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -207,7 +257,11 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
           {
             "internalType": "address payable",
             "name": "seller",
@@ -223,7 +277,11 @@
             "name": "commissionPercentage",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "warranty", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "warranty",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "cashbackPercentage",
@@ -234,11 +292,19 @@
         "name": "_listing",
         "type": "tuple"
       },
-      { "internalType": "uint256", "name": "_quantity", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
     ],
     "name": "createListing",
     "outputs": [
-      { "internalType": "bytes32", "name": "hash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -257,15 +323,31 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "managerAllowed",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "_hash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "_hash",
+        "type": "bytes32"
+      }
     ],
     "name": "onDispute",
     "outputs": [],
@@ -275,7 +357,13 @@
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -290,7 +378,11 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
           {
             "internalType": "address payable",
             "name": "seller",
@@ -306,7 +398,11 @@
             "name": "commissionPercentage",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "warranty", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "warranty",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "cashbackPercentage",
@@ -320,7 +416,11 @@
     ],
     "name": "report",
     "outputs": [
-      { "internalType": "bytes32", "name": "_hash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "_hash",
+        "type": "bytes32"
+      }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -329,7 +429,11 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
           {
             "internalType": "address payable",
             "name": "seller",
@@ -345,7 +449,11 @@
             "name": "commissionPercentage",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "warranty", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "warranty",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "cashbackPercentage",
@@ -359,15 +467,27 @@
     ],
     "name": "requireValidListing",
     "outputs": [
-      { "internalType": "bytes32", "name": "hash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "_hash", "type": "bytes32" },
-      { "internalType": "uint256", "name": "_ruling", "type": "uint256" }
+      {
+        "internalType": "bytes32",
+        "name": "_hash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ruling",
+        "type": "uint256"
+      }
     ],
     "name": "rulingCallback",
     "outputs": [],
@@ -389,7 +509,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -413,7 +537,11 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
           {
             "internalType": "address payable",
             "name": "seller",
@@ -429,7 +557,11 @@
             "name": "commissionPercentage",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "warranty", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "warranty",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "cashbackPercentage",
@@ -440,11 +572,19 @@
         "name": "_listing",
         "type": "tuple"
       },
-      { "internalType": "uint256", "name": "_quantity", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
     ],
     "name": "updateListing",
     "outputs": [
-      { "internalType": "bytes32", "name": "hash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "function"
