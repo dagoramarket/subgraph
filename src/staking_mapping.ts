@@ -30,7 +30,7 @@ export function handleStakeToken(event: StakeToken): void {
   }
 }
 
-export function handleUnStakeToken(event: UnstakeToken): void {
+export function handleUnstakeToken(event: UnstakeToken): void {
   let entity = Seller.load(event.params.sender.toHex());
   if (entity == null) {
     return;
