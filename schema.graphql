@@ -15,7 +15,66 @@ type _Schema_
     ]
   )
 
-type Listing @entity {
+type Block @entity {
+  id: ID!
+  expiresAtListings: [ActiveListing!]!
+}
+
+interface Listing @entity {
+  id: ID!
+  seller: Seller!
+
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expirationBlock: BigInt!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
+
+  category: String!
+  tags: [String!]!
+  media: [String!]!
+
+  tagSearch: String
+  sellerStake: BigInt!
+}
+
+type ActiveListing implements Listing @entity {
+  id: ID!
+  seller: Seller!
+
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expirationBlock: BigInt!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
+
+  category: String!
+  tags: [String!]!
+  media: [String!]!
+
+  tagSearch: String
+  sellerStake: BigInt!
+}
+
+type ValidListing implements Listing @entity {
   id: ID!
   seller: Seller!
 
@@ -29,27 +88,51 @@ type Listing @entity {
   quantity: BigInt!
 
   price: BigInt!
-  title: String
-  description: String
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
 
-  categories: [String!]!
+  category: String!
   tags: [String!]!
-  images: [String!]!
-
+  media: [String!]!
 
   tagSearch: String
   sellerStake: BigInt!
+}
 
-  allowed_tokens: [Bytes!]!
+type InvalidListing implements Listing @entity {
+  id: ID!
+  seller: Seller!
 
-  # location: Location
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expiration: BigInt!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
+
+  category: String!
+  tags: [String!]!
+  media: [String!]!
+
+  tagSearch: String
+  sellerStake: BigInt!
 }
 
 type Seller @entity {
   id: ID!
   balance: BigInt!
   lockedTokens: BigInt!
-  listings: [Listing!]! # @derivedFrom(field: "seller")
+  activeListings: [ActiveListing!]! # @derivedFrom(field: "seller")
 }
 
 # type Location @entity {

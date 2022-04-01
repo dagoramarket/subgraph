@@ -71,3 +71,5 @@ dataSources:
         - event: ListingUpdated(indexed bytes32,uint256)
           handler: handleListingUpdated
       file: ./src/listing_mapping.ts
+      blockHandlers:
+        - handler: handleBlock

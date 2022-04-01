@@ -1,6 +1,7 @@
 import {
   BigInt,
   Bytes,
+  ethereum,
   json,
   JSONValue,
   JSONValueKind,
@@ -14,28 +15,40 @@ import {
   ListingReported,
   ListingUpdated,
 } from "../generated/ListingManager/ListingManager";
-import { Listing, Seller } from "../generated/schema";
+import { ActiveListing, Block, Seller } from "../generated/schema";
+import { store } from "@graphprotocol/graph-ts";
+
+export function handleBlock(block: ethereum.Block) {
+  let b = Block.load(block.number.toString());
+  if (b == null) return;
+
+  for (let i = 0; i < b.expiresAtListings.length; i++) {
+    const listing = b.expiresAtListings[i];
+    store.remove("ActiveListing", listing);
+  }
+}
 
 export function handleListingCreated(event: ListingCreated): void {
-  let entity = Listing.load(event.params.hash.toHex());
+  let entity = ActiveListing.load(event.params.hash.toHex());
   if (entity == null) {
-    entity = new Listing(event.params.hash.toHex());
+    entity = new ActiveListing(event.params.hash.toHex());
     entity.title = "";
     entity.description = "";
     entity.price = BigInt.fromI64(0);
     entity.sellerStake = BigInt.fromI64(0);
-    entity.allowed_tokens = [];
-    entity.categories = [];
+    entity.allowedTokens = [];
+    entity.category = "";
     entity.tags = [];
   }
   let seller = Seller.load(event.params.seller.toHex());
   if (seller == null) {
     return;
   }
+
   entity.seller = seller.id;
   entity.sellerStake = seller.balance;
 
-  entity.expiration = event.params.expiration;
+  entity.expirationBlock = event.params.expirationBlock;
   entity.quantity = event.params.quantity;
 
   entity.cashbackPercentage = event.params.cashbackPercentage;
@@ -69,15 +82,15 @@ export function handleListingCreated(event: ListingCreated): void {
             entity.price = BigInt.fromString(price.toString());
           }
         }
-        if (obj.isSet("allowed_tokens")) {
-          let allowed_tokens = obj.get("allowed_tokens");
-          if (allowed_tokens && !allowed_tokens.isNull()) {
-            let rawArray = allowed_tokens.toArray();
+        if (obj.isSet("allowedTokens")) {
+          let allowedTokens = obj.get("allowedTokens");
+          if (allowedTokens && !allowedTokens.isNull()) {
+            let rawArray = allowedTokens.toArray();
             let tokens: Array<Bytes> = rawArray.map<Bytes>((value) => {
               return Bytes.fromByteArray(Bytes.fromHexString(value.toString()));
             });
 
-            entity.allowed_tokens = tokens;
+            entity.allowedTokens = tokens;
           }
         }
         if (obj.isSet("tags")) {
@@ -92,38 +105,39 @@ export function handleListingCreated(event: ListingCreated): void {
             entity.tagSearch = tagArray.toString();
           }
         }
-        if (obj.isSet("categories")) {
-          let categories = obj.get("categories");
-          if (categories && !categories.isNull()) {
-            let rawArray = categories.toArray();
-            let categoriesArray: Array<string> = rawArray.map<string>(
-              (value) => {
-                return value.toString();
-              }
-            );
-
-            entity.categories = categoriesArray;
+        if (obj.isSet("category")) {
+          let category = obj.get("category");
+          if (category) {
+            entity.category = category.toString();
           }
         }
-        if (obj.isSet("images")) {
-          let images = obj.get("images");
-          if (images && !images.isNull()) {
-            let rawArray = images.toArray();
-            let imagesArray: Array<string> = rawArray.map<string>((value) => {
+        if (obj.isSet("media")) {
+          let media = obj.get("media");
+          if (media && !media.isNull()) {
+            let rawArray = media.toArray();
+            let mediaArray: Array<string> = rawArray.map<string>((value) => {
               return value.toString();
             });
 
-            entity.images = imagesArray;
+            entity.media = mediaArray;
           }
         }
       }
-      
+
       entity.save();
-      let listingArray = seller.listings;
+      let listingArray = seller.activeListings;
       listingArray.push(entity.id);
-      seller.listings = listingArray;
+      seller.activeListings = listingArray;
       seller.save();
-      
+      let block = Block.load(entity.expirationBlock.toString());
+      if (block == null) {
+        block = new Block(entity.expirationBlock.toString());
+        block.expiresAtListings = [];
+      }
+      const expiresAtListings = block.expiresAtListings;
+      expiresAtListings.push(entity.id);
+      block.expiresAtListings = expiresAtListings;
+      block.save();
     }
   }
 }
@@ -132,7 +146,9 @@ function isObject(jsonData: JSONValue): boolean {
   return jsonData.kind === JSONValueKind.OBJECT;
 }
 
-export function handleListingCancelled(event: ListingCancelled): void {}
+export function handleListingCancelled(event: ListingCancelled): void {
+  store.remove("ActiveListing", event.params.hash.toHex());
+}
 
 export function handleListingReportResult(event: ListingReportResult): void {}
 
