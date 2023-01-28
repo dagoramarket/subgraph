@@ -5,7 +5,7 @@ type _Schema_
     algorithm: proximityRank
     include: [
       {
-        entity: "Listing"
+        entity: "ActiveListing"
         fields: [
           { name: "title" }
           { name: "description" }
@@ -15,9 +15,14 @@ type _Schema_
     ]
   )
 
+type Configuration @entity {
+  id: ID!
+  minimumStake: BigInt!
+}
+
 type Block @entity {
   id: ID!
-  expiresAtListings: [ActiveListing!]!
+  expiresAtListings: [ActiveListing!]! @derivedFrom(field: "expirationBlock")
 }
 
 interface Listing @entity {
@@ -28,7 +33,7 @@ interface Listing @entity {
   cashbackPercentage: BigInt!
   warranty: BigInt!
 
-  expirationBlock: BigInt!
+  expirationBlock: Block!
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
@@ -47,7 +52,7 @@ interface Listing @entity {
   sellerStake: BigInt!
 }
 
-type ActiveListing implements Listing @entity {
+interface ValidListing implements Listing @entity {
   id: ID!
   seller: Seller!
 
@@ -55,7 +60,7 @@ type ActiveListing implements Listing @entity {
   cashbackPercentage: BigInt!
   warranty: BigInt!
 
-  expirationBlock: BigInt!
+  expirationBlock: Block!
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
@@ -74,7 +79,7 @@ type ActiveListing implements Listing @entity {
   sellerStake: BigInt!
 }
 
-type ValidListing implements Listing @entity {
+type ActiveListing implements ValidListing @entity {
   id: ID!
   seller: Seller!
 
@@ -82,7 +87,7 @@ type ValidListing implements Listing @entity {
   cashbackPercentage: BigInt!
   warranty: BigInt!
 
-  expiration: BigInt!
+  expirationBlock: Block!
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
@@ -101,7 +106,7 @@ type ValidListing implements Listing @entity {
   sellerStake: BigInt!
 }
 
-type InvalidListing implements Listing @entity {
+type InactiveListing implements ValidListing @entity {
   id: ID!
   seller: Seller!
 
@@ -109,7 +114,61 @@ type InvalidListing implements Listing @entity {
   cashbackPercentage: BigInt!
   warranty: BigInt!
 
-  expiration: BigInt!
+  expirationBlock: Block!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
+
+  category: String!
+  tags: [String!]!
+  media: [String!]!
+
+  tagSearch: String
+  sellerStake: BigInt!
+}
+
+type ExpiredListing implements Listing @entity {
+  id: ID!
+  seller: Seller!
+
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expirationBlock: Block!
+
+  ipfsHash: String! # hash of the ipfs content
+  quantity: BigInt!
+
+  price: BigInt!
+  defaultToken: Bytes!
+  title: String!
+  description: String!
+  allowedTokens: [Bytes!]!
+
+  category: String!
+  tags: [String!]!
+  media: [String!]!
+
+  tagSearch: String
+  sellerStake: BigInt!
+}
+
+type CanceledListing implements Listing @entity {
+  id: ID!
+  seller: Seller!
+
+  commissionPercentage: BigInt!
+  cashbackPercentage: BigInt!
+  warranty: BigInt!
+
+  expirationBlock: Block!
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
@@ -132,7 +191,9 @@ type Seller @entity {
   id: ID!
   balance: BigInt!
   lockedTokens: BigInt!
-  activeListings: [ActiveListing!]! # @derivedFrom(field: "seller")
+
+  activeListings: [ActiveListing!]! @derivedFrom(field: "seller")
+  inactiveListings: [InactiveListing!]! @derivedFrom(field: "seller")
 }
 
 # type Location @entity {

@@ -10,9 +10,9 @@ dataSources:
     name: StakeManager
     network: mumbai
     source:
-      address: "0x29d27aeA0Dce914F834d035cc974C18cC456694b"
+      address: "0xE2d93E02Ca41Ef164CA76146951Aa44b36003f25"
       abi: StakeManager
-      startBlock: 23983170
+      startBlock: 26016526
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -42,9 +42,9 @@ dataSources:
     name: ListingManager
     network: mumbai
     source:
-      address: "0x6049443D72B23B146059861Bd509686Df78eC2fF"
+      address: "0xa9dC19A766c14A5E38C4a6370B376f042eC8CB94"
       abi: ListingManager
-      startBlock: 23983170
+      startBlock: 26016526
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

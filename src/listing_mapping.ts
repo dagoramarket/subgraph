@@ -1,6 +1,7 @@
 import {
   BigInt,
   Bytes,
+  Entity,
   ethereum,
   json,
   JSONValue,
@@ -15,17 +16,30 @@ import {
   ListingReported,
   ListingUpdated,
 } from "../generated/ListingManager/ListingManager";
-import { ActiveListing, Block, Seller } from "../generated/schema";
+import {
+  ActiveListing,
+  Block,
+  CanceledListing,
+  ExpiredListing,
+  InactiveListing,
+  Seller,
+} from "../generated/schema";
 import { store } from "@graphprotocol/graph-ts";
+import { getMinimumStake } from "./utils";
+import { handleIpfsListing } from "./utils/ipfs";
 
-export function handleBlock(block: ethereum.Block) {
+export function handleBlock(block: ethereum.Block): void {
   let b = Block.load(block.number.toString());
   if (b == null) return;
 
   for (let i = 0; i < b.expiresAtListings.length; i++) {
-    const listing = b.expiresAtListings[i];
-    store.remove("ActiveListing", listing);
+    const listingId = b.expiresAtListings[i];
+    const listing = ActiveListing.load(listingId);
+    const expired = changetype<ExpiredListing>(listing);
+    store.remove("ActiveListing", listingId);
+    expired.save();
   }
+  store.remove("Block", block.number.toString());
 }
 
 export function handleListingCreated(event: ListingCreated): void {
@@ -44,11 +58,10 @@ export function handleListingCreated(event: ListingCreated): void {
   if (seller == null) {
     return;
   }
-
   entity.seller = seller.id;
-  entity.sellerStake = seller.balance;
+  entity.sellerStake = seller.balance.minus(seller.lockedTokens);
 
-  entity.expirationBlock = event.params.expirationBlock;
+  entity.expirationBlock = event.params.expirationBlock.toString();
   entity.quantity = event.params.quantity;
 
   entity.cashbackPercentage = event.params.cashbackPercentage;
@@ -57,78 +70,25 @@ export function handleListingCreated(event: ListingCreated): void {
 
   entity.ipfsHash = event.params.ipfs;
 
-  let data = ipfs.cat(entity.ipfsHash);
-  if (data) {
-    let result = json.try_fromBytes(data);
-    if (result.isOk) {
-      if (isObject(result.value)) {
-        let obj = result.value.toObject();
-
-        if (obj.isSet("title")) {
-          let title = obj.get("title");
-          if (title) {
-            entity.title = title.toString();
-          }
-        }
-        if (obj.isSet("description")) {
-          let description = obj.get("description");
-          if (description) {
-            entity.description = description.toString();
-          }
-        }
-        if (obj.isSet("price")) {
-          let price = obj.get("price");
-          if (price) {
-            entity.price = BigInt.fromString(price.toString());
-          }
-        }
-        if (obj.isSet("allowedTokens")) {
-          let allowedTokens = obj.get("allowedTokens");
-          if (allowedTokens && !allowedTokens.isNull()) {
-            let rawArray = allowedTokens.toArray();
-            let tokens: Array<Bytes> = rawArray.map<Bytes>((value) => {
-              return Bytes.fromByteArray(Bytes.fromHexString(value.toString()));
-            });
-
-            entity.allowedTokens = tokens;
-          }
-        }
-        if (obj.isSet("tags")) {
-          let tags = obj.get("tags");
-          if (tags && !tags.isNull()) {
-            let rawArray = tags.toArray();
-            let tagArray: Array<string> = rawArray.map<string>((value) => {
-              return value.toString();
-            });
-
-            entity.tags = tagArray;
-            entity.tagSearch = tagArray.toString();
-          }
-        }
-        if (obj.isSet("category")) {
-          let category = obj.get("category");
-          if (category) {
-            entity.category = category.toString();
-          }
-        }
-        if (obj.isSet("media")) {
-          let media = obj.get("media");
-          if (media && !media.isNull()) {
-            let rawArray = media.toArray();
-            let mediaArray: Array<string> = rawArray.map<string>((value) => {
-              return value.toString();
-            });
-
-            entity.media = mediaArray;
-          }
-        }
-      }
-
+  let ipfsImpl = handleIpfsListing(entity.ipfsHash);
+  if (ipfsImpl) {
+    entity.title = ipfsImpl.title;
+    entity.description = ipfsImpl.description;
+    entity.price = ipfsImpl.price;
+    entity.allowedTokens = ipfsImpl.allowedTokens;
+    entity.defaultToken = ipfsImpl.defaultToken;
+    entity.tags = ipfsImpl.tags;
+    entity.category = ipfsImpl.category;
+    entity.media = ipfsImpl.media;
+    entity.expirationBlock
+  }
+  if (entity.sellerStake.ge(getMinimumStake())) {
+    const inactiveListing = changetype<InactiveListing>(entity);
+    inactiveListing.save();
+  } else {
+    if (event.block.number.toI32() < event.params.expirationBlock.toI32()) {
       entity.save();
-      let listingArray = seller.activeListings;
-      listingArray.push(entity.id);
-      seller.activeListings = listingArray;
-      seller.save();
+
       let block = Block.load(entity.expirationBlock.toString());
       if (block == null) {
         block = new Block(entity.expirationBlock.toString());
@@ -138,16 +98,24 @@ export function handleListingCreated(event: ListingCreated): void {
       expiresAtListings.push(entity.id);
       block.expiresAtListings = expiresAtListings;
       block.save();
+    } else {
+      const expiredListing = changetype<ExpiredListing>(entity);
+      expiredListing.save();
     }
   }
 }
 
-function isObject(jsonData: JSONValue): boolean {
-  return jsonData.kind === JSONValueKind.OBJECT;
-}
-
 export function handleListingCancelled(event: ListingCancelled): void {
-  store.remove("ActiveListing", event.params.hash.toHex());
+  let entity: Entity | null = ActiveListing.load(event.params.hash.toHex());
+  let dataType = "ActiveListing";
+  if (entity == null) {
+    entity = InactiveListing.load(event.params.hash.toHex());
+    dataType = "InactiveListing";
+  }
+  if (entity == null) return;
+  const canceledListing = changetype<CanceledListing>(entity);
+  canceledListing.save();
+  store.remove(dataType, event.params.hash.toHex());
 }
 
 export function handleListingReportResult(event: ListingReportResult): void {}

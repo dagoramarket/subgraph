@@ -2,3 +2,5 @@ node_modules/
 generated/
 build/
 
+.bin/
+.latest.json
