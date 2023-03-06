@@ -4,6 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "test": "graph test",
     "deploy": "graph deploy --product hosted-service flametuner/Dagora",
     "create-local": "graph create --node http://localhost:8020/ dagora-subgraph",
     "remove-local": "graph remove --node http://localhost:8020/ dagora-subgraph",
@@ -12,5 +13,8 @@
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.42.2",
     "@graphprotocol/graph-ts": "^0.29.3"
+  },
+  "devDependencies": {
+    "matchstick-as": "^0.5.1"
   }
 }

@@ -15,12 +15,14 @@ type _Schema_
     ]
   )
 
-type Block @entity {
-  id: ID!
-  expiresAtListings: [ActiveListing!]!
+enum ListingState {
+  Active # if expiresAt > now: state = Expired
+  InDispute
+  Cancelled
+  Malicious
 }
 
-interface Listing @entity {
+type Listing @entity {
   id: ID!
   seller: Seller!
 
@@ -28,111 +30,30 @@ interface Listing @entity {
   cashbackPercentage: BigInt!
   warranty: BigInt!
 
-  expirationBlock: BigInt!
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
 
-  price: BigInt!
-  defaultToken: Bytes!
   title: String!
   description: String!
-  allowedTokens: [Bytes!]!
+  price: BigInt!
+  token: Bytes!
 
   category: String!
   tags: [String!]!
   media: [String!]!
 
   tagSearch: String
-  sellerStake: BigInt!
-}
 
-type ActiveListing implements Listing @entity {
-  id: ID!
-  seller: Seller!
-
-  commissionPercentage: BigInt!
-  cashbackPercentage: BigInt!
-  warranty: BigInt!
-
-  expirationBlock: BigInt!
-
-  ipfsHash: String! # hash of the ipfs content
-  quantity: BigInt!
-
-  price: BigInt!
-  defaultToken: Bytes!
-  title: String!
-  description: String!
-  allowedTokens: [Bytes!]!
-
-  category: String!
-  tags: [String!]!
-  media: [String!]!
-
-  tagSearch: String
-  sellerStake: BigInt!
-}
-
-type ValidListing implements Listing @entity {
-  id: ID!
-  seller: Seller!
-
-  commissionPercentage: BigInt!
-  cashbackPercentage: BigInt!
-  warranty: BigInt!
-
-  expiration: BigInt!
-
-  ipfsHash: String! # hash of the ipfs content
-  quantity: BigInt!
-
-  price: BigInt!
-  defaultToken: Bytes!
-  title: String!
-  description: String!
-  allowedTokens: [Bytes!]!
-
-  category: String!
-  tags: [String!]!
-  media: [String!]!
-
-  tagSearch: String
-  sellerStake: BigInt!
-}
-
-type InvalidListing implements Listing @entity {
-  id: ID!
-  seller: Seller!
-
-  commissionPercentage: BigInt!
-  cashbackPercentage: BigInt!
-  warranty: BigInt!
-
-  expiration: BigInt!
-
-  ipfsHash: String! # hash of the ipfs content
-  quantity: BigInt!
-
-  price: BigInt!
-  defaultToken: Bytes!
-  title: String!
-  description: String!
-  allowedTokens: [Bytes!]!
-
-  category: String!
-  tags: [String!]!
-  media: [String!]!
-
-  tagSearch: String
-  sellerStake: BigInt!
+  expiresAt: BigInt!
+  state: ListingState!
 }
 
 type Seller @entity {
   id: ID!
   balance: BigInt!
   lockedTokens: BigInt!
-  activeListings: [ActiveListing!]! # @derivedFrom(field: "seller")
+  listings: [Listing!]! @derivedFrom(field: "seller")
 }
 
 # type Location @entity {
