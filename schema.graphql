@@ -22,6 +22,19 @@ enum ListingState {
   Malicious
 }
 
+type Category @entity {
+  id: ID!
+  # description: String!
+  listings: [ListingCategory!]! @derivedFrom(field: "category")
+}
+
+type ListingCategory @entity {
+  id: ID!
+  listing: Listing!
+  category: Category!
+  seller: Seller!
+}
+
 type Listing @entity {
   id: ID!
   seller: Seller!
@@ -29,7 +42,6 @@ type Listing @entity {
   commissionPercentage: BigInt!
   cashbackPercentage: BigInt!
   warranty: BigInt!
-
 
   ipfsHash: String! # hash of the ipfs content
   quantity: BigInt!
@@ -39,7 +51,7 @@ type Listing @entity {
   price: BigInt!
   token: Bytes!
 
-  category: String!
+  categories: [ListingCategory!]! @derivedFrom(field: "listing")
   tags: [String!]!
   media: [String!]!
 

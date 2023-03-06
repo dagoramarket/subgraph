@@ -1,4 +1,4 @@
-import { BigInt, store } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   ListingCancelled,
   ListingCreated,
@@ -9,12 +9,10 @@ import {
 import { Listing, Seller } from "../generated/schema";
 import { parseIpfsListing } from "./listing/ipfs";
 
-enum ListingState {
-  Active = "Active",
-  InDispute = "InDispute",
-  Cancelled = "Cancelled",
-  Malicious = "Malicious",
-}
+const ListingState_Active = "Active";
+const ListingState_InDispute = "InDispute";
+const ListingState_Cancelled = "Cancelled";
+const ListingState_Malicious = "Malicious";
 
 export function handleListingCreated(event: ListingCreated): void {
   let entity = Listing.load(event.params.hash.toHex());
@@ -23,7 +21,6 @@ export function handleListingCreated(event: ListingCreated): void {
     entity.title = "";
     entity.description = "";
     entity.price = BigInt.fromI64(0);
-    entity.category = "";
     entity.tags = [];
   }
   let seller = Seller.load(event.params.seller.toHex());
@@ -41,8 +38,8 @@ export function handleListingCreated(event: ListingCreated): void {
   entity.warranty = event.params.warranty;
 
   entity.ipfsHash = event.params.ipfs;
-  entity.state = ListingState.Active;
-  
+  entity.state = ListingState_Active;
+
   parseIpfsListing(entity);
 }
 
@@ -51,7 +48,7 @@ export function handleListingCancelled(event: ListingCancelled): void {
   if (entity == null) {
     return;
   }
-  entity.state = ListingState.Cancelled;
+  entity.state = ListingState_Cancelled;
 }
 
 const REPORT_CORRECT = BigInt.fromI32(1);
@@ -62,9 +59,9 @@ export function handleListingReportResult(event: ListingReportResult): void {
     return;
   }
   if (event.params.result == REPORT_CORRECT) {
-    entity.state = ListingState.Malicious;
+    entity.state = ListingState_Malicious;
   } else {
-    entity.state = ListingState.Active;
+    entity.state = ListingState_Active;
   }
 }
 
@@ -73,7 +70,7 @@ export function handleListingReported(event: ListingReported): void {
   if (entity == null) {
     return;
   }
-  entity.state = ListingState.InDispute;
+  entity.state = ListingState_InDispute;
 }
 
 export function handleListingUpdated(event: ListingUpdated): void {

@@ -5,7 +5,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "test": "graph test",
-    "deploy": "graph deploy --product hosted-service flametuner/Dagora",
+    "deploy": "graph deploy --product hosted-service dagoramarket/dagora",
     "create-local": "graph create --node http://localhost:8020/ dagora-subgraph",
     "remove-local": "graph remove --node http://localhost:8020/ dagora-subgraph",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 dagora-subgraph"
